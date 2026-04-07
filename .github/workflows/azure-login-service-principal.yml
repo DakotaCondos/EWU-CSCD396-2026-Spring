@@ -104,9 +104,9 @@ jobs:
           azPSVersion: 'latest'
           inlineScript: |
             # Set variables
-            $resourceGroupName = "${{ vars.RESOURCE_GROUP_NAME }}"
-            $keyVaultName = "${{ vars.KEYVAULT_NAME }}"
-            $location = "${{ vars.AZURE_LOCATION }}"
+            $resourceGroupName = "rg-vmtesst1"
+            $keyVaultName = "kv-ewu2026test"
+            $location = "eastus"
             
             Write-Host "Connected to Azure Subscription:"
             Get-AzContext
