@@ -85,7 +85,7 @@ jobs:
   # Job 3: Using PowerShell to Create Key Vault
   create-keyvault-with-powershell:
     runs-on: windows-latest
-    
+    needs: login-with-oidc  # Ensure OIDC login runs first
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
