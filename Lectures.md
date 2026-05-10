@@ -29,13 +29,13 @@
 ### Topics Covered
 - Q and A (max 10 min)
 - Review tools and environment configuration
-- Getting connected to Copilot
+- Getting connected to Copilot (https://github.com/settings/education/benefits?utm_source=2025-04-25-repo-TeacherToolbox&locale=en-US)
 - Getting connected to Azure
   - API and Resource Manager architecture
   - PowerShell and the AZ module
   - Azure CLI
   - Configuring a budget and cost alerts
-  - Provisoning Services
+  - Provisioning Services
 - [GitHub Actions Intro](https://docs.github.com/en/actions)
 - Service Principals and Open ID Connect (OIDC)
 - Services Review
@@ -46,14 +46,12 @@
 ### Topics Covered
 - Deploying applications to Azure
 - Enterprise application architecture
-- CI/CD with GitHub Actions
-- Wordle clone
-  - client side
-  - turning into a scalable "enterprise" SaaS
+- Simple web app
 - Azure App Service
   - Build and deploy
   - App Configuration
   - Slots
+- CI/CD with GitHub Actions
 
 ## Lecture 4
 ### Topics Covered
@@ -71,8 +69,7 @@
 - Containers and the Container Use Case
 - Docker and Docker Desktop
 - Container Registry
-- Azure Container Instance*
-- Azure Container Apps**
+- Azure Container Apps
 - Kubernetes and Azure Kubernetes Service (AKS)**
 
 ## Lecture 6
@@ -103,19 +100,14 @@ Messaging and Eventing
 
 ## Lecture 9
 ### Topics Covered
-- Static Web Apps
-- APIs
-- Content Delivery Networks (CDN)
+- Event Grid and Event Hub
 
 ## Lecture 10
 ### Topics Covered
-- Azure Static Web App Networking and DNS
+- Azure Static Web Apps
+- Content Delivery Networks (CDN)
 - Networking and DNS
-- Connecting
-- Finish off Event Grid
-- Solution architecture
-- Planning
-- Deployments
+- APIs and API Management
 
 ## Lecture 11
 ### Topics Covered
@@ -123,12 +115,12 @@ Messaging and Eventing
 
 ## Lecture 12
 ### Topics Covered
-- Finish Cosmos DB
-- API Management intro
+- Query Cosmos DB 
+- Cosmos DB Change Feed
 
 ## Lecture 13
 ### Topics Covered
-- Query Cosmos DB ***
+- AI Foundry
 
 ## Lecture 14
 ### Topics Covered
@@ -138,7 +130,6 @@ Messaging and Eventing
 ## Lecture 15
 ### Topics Covered
 - Logic App w/ Sentiment Analysis
-- Cosmos DB Change Feed
 - Static site updates w/ secure a page
 - Redis Cache
 
@@ -180,6 +171,7 @@ Agile Project Management
 ### Topics Covered
 - TBD
 
+***
 
 ## Topics to Cover
 - o GitHub Issues/Boards
