@@ -1,0 +1,92 @@
+name: Assignment3 Terraform Deploy
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - Assignment3
+    paths:
+      - "Assignment3/terraform/**"
+      - ".github/workflows/Assignment3-terraform.yml"
+  pull_request:
+    branches:
+      - Assignment3
+    paths:
+      - "Assignment3/terraform/**"
+
+permissions:
+  id-token: write
+  contents: read
+  pull-requests: write
+
+env:
+  TF_VERSION: "1.5.0"
+  WORKING_DIR: "./Assignment3/terraform"
+  BACKEND_RESOURCE_GROUP: ${{ vars.TF_STATE_RESOURCE_GROUP }}
+  BACKEND_STORAGE_ACCOUNT: ${{ vars.TF_STATE_STORAGE_ACCOUNT }}
+  BACKEND_CONTAINER: ${{ vars.TF_STATE_CONTAINER }}
+  BACKEND_KEY: ${{ vars.TF_STATE_KEY }}
+  ARM_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+  ARM_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+  ARM_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+  ARM_USE_OIDC: true
+
+jobs:
+  terraform:
+    name: Terraform Deploy
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: ${{ env.TF_VERSION }}
+
+      - name: Azure Login with OIDC
+        uses: azure/login@v1
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+      - name: Terraform Init
+        working-directory: ${{ env.WORKING_DIR }}
+        run: |
+          terraform init \
+            -backend-config="resource_group_name=${{ env.BACKEND_RESOURCE_GROUP }}" \
+            -backend-config="storage_account_name=${{ env.BACKEND_STORAGE_ACCOUNT }}" \
+            -backend-config="container_name=${{ env.BACKEND_CONTAINER }}" \
+            -backend-config="key=${{ env.BACKEND_KEY }}"
+
+      - name: Terraform Format Check
+        working-directory: ${{ env.WORKING_DIR }}
+        run: terraform fmt -check -recursive
+
+      - name: Terraform Validate
+        working-directory: ${{ env.WORKING_DIR }}
+        run: terraform validate
+
+      - name: Terraform Plan
+        working-directory: ${{ env.WORKING_DIR }}
+        run: terraform plan
+
+      - name: Terraform Apply
+        if: github.event_name != 'pull_request'
+        working-directory: ${{ env.WORKING_DIR }}
+        run: terraform apply -auto-approve
+
+      - name: Deployment Summary
+        if: github.event_name != 'pull_request'
+        working-directory: ${{ env.WORKING_DIR }}
+        run: |
+          echo "## Assignment 3 Terraform Deployment Complete" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Outputs" >> $GITHUB_STEP_SUMMARY
+          echo "- **Resource Group:** $(terraform output -raw resource_group_name)" >> $GITHUB_STEP_SUMMARY
+          echo "- **Function App:** $(terraform output -raw function_app_name)" >> $GITHUB_STEP_SUMMARY
+          echo "- **Storage Account:** $(terraform output -raw storage_account_name)" >> $GITHUB_STEP_SUMMARY
+          echo "- **Service Bus Namespace:** $(terraform output -raw servicebus_namespace_name)" >> $GITHUB_STEP_SUMMARY
+          echo "- **Service Bus Queue:** $(terraform output -raw servicebus_queue_name)" >> $GITHUB_STEP_SUMMARY

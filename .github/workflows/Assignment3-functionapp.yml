@@ -1,0 +1,107 @@
+name: Assignment3 Function App Deploy
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - Assignment3
+    paths:
+      - "Assignment3/FunctionApp/**"
+      - ".github/workflows/Assignment3-functionapp.yml"
+  workflow_run:
+    workflows:
+      - "Assignment3 Terraform Deploy"
+    types:
+      - completed
+
+permissions:
+  id-token: write
+  contents: read
+
+env:
+  TF_VERSION: "1.5.0"
+  WORKING_DIR: "./Assignment3/terraform"
+  FUNCTION_PROJECT: "./Assignment3/FunctionApp/Assignment3.FunctionApp.csproj"
+  PUBLISH_DIR: "./Assignment3/FunctionApp/publish"
+  BACKEND_RESOURCE_GROUP: ${{ vars.TF_STATE_RESOURCE_GROUP }}
+  BACKEND_STORAGE_ACCOUNT: ${{ vars.TF_STATE_STORAGE_ACCOUNT }}
+  BACKEND_CONTAINER: ${{ vars.TF_STATE_CONTAINER }}
+  BACKEND_KEY: ${{ vars.TF_STATE_KEY }}
+  ARM_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+  ARM_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+  ARM_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+  ARM_USE_OIDC: true
+
+jobs:
+  deploy:
+    name: Deploy Function App
+    runs-on: ubuntu-latest
+    if: >-
+      github.event_name == 'push' ||
+      (
+        github.event_name == 'workflow_run' &&
+        github.event.workflow_run.conclusion == 'success' &&
+        github.event.workflow_run.event != 'pull_request'
+      )
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event_name == 'workflow_run' && github.event.workflow_run.head_sha || github.sha }}
+
+      - name: Azure Login with OIDC
+        uses: azure/login@v1
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "8.0.x"
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: ${{ env.TF_VERSION }}
+
+      - name: Terraform Init
+        working-directory: ${{ env.WORKING_DIR }}
+        run: |
+          terraform init \
+            -backend-config="resource_group_name=${{ env.BACKEND_RESOURCE_GROUP }}" \
+            -backend-config="storage_account_name=${{ env.BACKEND_STORAGE_ACCOUNT }}" \
+            -backend-config="container_name=${{ env.BACKEND_CONTAINER }}" \
+            -backend-config="key=${{ env.BACKEND_KEY }}"
+
+      - name: Read Terraform Outputs
+        working-directory: ${{ env.WORKING_DIR }}
+        run: |
+          echo "FUNCTION_APP_NAME=$(terraform output -raw function_app_name)" >> $GITHUB_ENV
+          echo "RESOURCE_GROUP_NAME=$(terraform output -raw resource_group_name)" >> $GITHUB_ENV
+
+      - name: Restore dependencies
+        run: dotnet restore ${{ env.FUNCTION_PROJECT }}
+
+      - name: Publish Function App
+        run: dotnet publish ${{ env.FUNCTION_PROJECT }} -c Release -o ${{ env.PUBLISH_DIR }}
+
+      - name: Zip published app
+        working-directory: ${{ env.PUBLISH_DIR }}
+        run: zip -r ../functionapp.zip .
+
+      - name: Deploy zip package
+        run: |
+          az functionapp deployment source config-zip \
+            --resource-group "$RESOURCE_GROUP_NAME" \
+            --name "$FUNCTION_APP_NAME" \
+            --src "${{ github.workspace }}/Assignment3/FunctionApp/functionapp.zip"
+
+      - name: Deployment Summary
+        run: |
+          echo "## Assignment 3 Function App Deployment Complete" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "- **Function App:** $FUNCTION_APP_NAME" >> $GITHUB_STEP_SUMMARY
+          echo "- **Resource Group:** $RESOURCE_GROUP_NAME" >> $GITHUB_STEP_SUMMARY

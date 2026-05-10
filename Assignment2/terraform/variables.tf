@@ -29,3 +29,18 @@ variable "acr_password" {
   type      = string
   sensitive = true
 }
+
+variable "servicebus_namespace_name" {
+  type    = string
+  default = "cscd396assn3sb"
+}
+
+variable "servicebus_namespace_resource_group_name" {
+  type    = string
+  default = "rg-assignment3"
+}
+
+variable "servicebus_queue_name" {
+  type    = string
+  default = "messages"
+}

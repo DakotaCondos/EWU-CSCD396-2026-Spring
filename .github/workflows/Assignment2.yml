@@ -4,7 +4,10 @@ on:
   workflow_dispatch:
   push:
     branches:
-      - Assignment2
+      - Assignment3
+    paths:
+      - "Assignment2/**"
+      - ".github/workflows/Assignment2.yml"
 
 permissions:
   id-token: write
@@ -15,9 +18,15 @@ jobs:
     runs-on: ubuntu-latest
 
     env:
+      ACR_LOGIN_SERVER: 396acr.azurecr.io
+      IMAGE_NAME: assignment2
+      IMAGE_TAG: v1
       TF_VAR_acr_login_server: 396acr.azurecr.io
-      TF_VAR_acr_username: ${{ secrets.TF_VAR_acr_username }}
-      TF_VAR_acr_password: ${{ secrets.TF_VAR_acr_password }}
+      TF_VAR_acr_username: ${{ secrets.TF_VAR_ACR_USERNAME }}
+      TF_VAR_acr_password: ${{ secrets.TF_VAR_ACR_PASSWORD }}
+      TF_VAR_servicebus_namespace_name: cscd396assn3sb
+      TF_VAR_servicebus_namespace_resource_group_name: rg-assignment3
+      TF_VAR_servicebus_queue_name: messages
       
     defaults:
       run:
@@ -34,6 +43,21 @@ jobs:
           tenant-id: ${{ secrets.AZURE_TENANT_ID }}
           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
+      - name: Log in to ACR
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.ACR_LOGIN_SERVER }}
+          username: ${{ secrets.TF_VAR_ACR_USERNAME }}
+          password: ${{ secrets.TF_VAR_ACR_PASSWORD }}
+
+      - name: Build and push container image
+        run: |
+          docker build \
+            -f Assignment2/Dockerfile \
+            -t $ACR_LOGIN_SERVER/$IMAGE_NAME:$IMAGE_TAG \
+            Assignment2
+          docker push $ACR_LOGIN_SERVER/$IMAGE_NAME:$IMAGE_TAG
+
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
 
@@ -41,7 +65,7 @@ jobs:
         run: terraform init
 
       - name: Terraform Plan
-        run: terraform plan -var="container_image=396acr.azurecr.io/assignment2:v1"
+        run: terraform plan -var="container_image=${{ env.ACR_LOGIN_SERVER }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}"
 
       - name: Terraform Apply
-        run: terraform apply -auto-approve -var="container_image=396acr.azurecr.io/assignment2:v1"
+        run: terraform apply -auto-approve -var="container_image=${{ env.ACR_LOGIN_SERVER }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}"

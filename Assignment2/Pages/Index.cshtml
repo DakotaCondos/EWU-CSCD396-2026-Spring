@@ -1,18 +1,62 @@
 ﻿@page
 @model IndexModel
 @{
-    ViewData["Title"] = "Home page";
+    ViewData["Title"] = "Assignment 2 Message Sender";
 }
 
-<div class="text-center">
-    <h1 class="display-4">CSCD 396 - Spring 2026</h1>
-    <h2>Assignment: Azure App Service Deployment Proof</h2>
-    <p>This web application is provided as proof of deployment for the CSCD 396 (Spring 2026) class assignment.</p>
-    <ul class="list-unstyled">
-        <li><strong>Course:</strong> CSCD 396 - Spring 2026</li>
-        <li><strong>Assignment:</strong> Assignment 2 - Create and deploy a containerized Web App</li>
-        <li><strong>Student:</strong> Dakota Condos</li>
-        <li><strong>Rendered on:</strong> @(TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow,
-                                                TimeZoneInfo.FindSystemTimeZoneById("Pacific Standard Time")).ToString("f")) PST</li>
-        </ul>
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-12 col-xl-10">
+            <div class="p-4 p-md-5 rounded-4 bg-body-tertiary border shadow-sm">
+                <div class="d-flex flex-column flex-md-row justify-content-between gap-3 align-items-md-end mb-4">
+                    <div>
+                        <p class="text-uppercase text-secondary fw-semibold mb-2">CSCD 396 - Spring 2026</p>
+                        <h1 class="display-5 fw-semibold mb-2">Assignment 2 container app</h1>
+                        <p class="lead mb-0">The proof page now also publishes messages into the Assignment 3 Service Bus queue.</p>
+                    </div>
+                    <div class="text-md-end text-secondary small">
+                        <div><strong>Student:</strong> Dakota Condos</div>
+                        <div><strong>Rendered on:</strong> @(TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow,
+                                                        TimeZoneInfo.FindSystemTimeZoneById("Pacific Standard Time")).ToString("f")) PST</div>
+                    </div>
+                </div>
+
+                <div class="row g-4">
+                    <div class="col-lg-5">
+                        <div class="h-100 p-4 bg-white rounded-4 border">
+                            <h2 class="h4 mb-3">Deployment proof</h2>
+                            <p class="text-secondary mb-4">This app still serves as the Assignment 2 deployment target and now acts as the sender for the new Service Bus workflow.</p>
+                            <ul class="list-unstyled mb-0 text-secondary">
+                                <li class="mb-2"><strong>Assignment:</strong> Assignment 2 - Create and deploy a containerized Web App</li>
+                                <li class="mb-2"><strong>Runtime:</strong> .NET 10 Razor Pages</li>
+                                <li><strong>Outbound path:</strong> Service Bus queue</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="col-lg-7">
+                        <div class="h-100 p-4 bg-white rounded-4 border shadow-sm">
+                            <h2 class="h4 mb-3">Send a message to Service Bus</h2>
+                            <p class="text-secondary">Enter a message below and the app will publish it to the queue configured in <code>SERVICEBUS_QUEUE_NAME</code>.</p>
+
+                            <form method="post" class="vstack gap-3">
+                                <div>
+                                    <label asp-for="Message" class="form-label fw-semibold"></label>
+                                    <textarea asp-for="Message" class="form-control form-control-lg" rows="5" placeholder="Type a message for the queue"></textarea>
+                                </div>
+                                <button type="submit" class="btn btn-dark btn-lg align-self-start px-4">Send message</button>
+                            </form>
+
+                            @if (!string.IsNullOrWhiteSpace(Model.StatusMessage))
+                            {
+                                <div class="alert @(Model.IsError ? "alert-danger" : "alert-success") mt-4 mb-0" role="alert">
+                                    @Model.StatusMessage
+                                </div>
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
     </div>

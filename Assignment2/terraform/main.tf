@@ -21,6 +21,15 @@ provider "azurerm" {
   subscription_id = "98ef8437-66f2-4a03-9d1a-cf7057d27d9c"
 }
 
+data "azurerm_servicebus_namespace" "target" {
+  name                = var.servicebus_namespace_name
+  resource_group_name = var.servicebus_namespace_resource_group_name
+}
+
+data "azurerm_role_definition" "servicebus_sender" {
+  name = "Azure Service Bus Data Sender"
+}
+
 data "azurerm_container_app_environment" "env" {
   name                = "cscd396-container-app-env"
   resource_group_name = var.resource_group_name
@@ -31,6 +40,10 @@ resource "azurerm_container_app" "app" {
   container_app_environment_id = data.azurerm_container_app_environment.env.id
   resource_group_name          = var.resource_group_name
   revision_mode                = "Single"
+
+  identity {
+    type = "SystemAssigned"
+  }
 
   registry {
     server               = var.acr_login_server
@@ -59,6 +72,22 @@ resource "azurerm_container_app" "app" {
       image  = var.container_image
       cpu    = 0.25
       memory = "0.5Gi"
+
+      env {
+        name  = "SERVICEBUS_NAMESPACE_FQDN"
+        value = format("%s.servicebus.windows.net", var.servicebus_namespace_name)
+      }
+
+      env {
+        name  = "SERVICEBUS_QUEUE_NAME"
+        value = var.servicebus_queue_name
+      }
     }
   }
+}
+
+resource "azurerm_role_assignment" "servicebus_sender" {
+  scope              = data.azurerm_servicebus_namespace.target.id
+  role_definition_id = data.azurerm_role_definition.servicebus_sender.id
+  principal_id       = azurerm_container_app.app.identity[0].principal_id
 }
