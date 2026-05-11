@@ -3,9 +3,14 @@ variable "resource_group_name" {
   default = "rg-assignment3"
 }
 
-variable "location" {
+variable "resource_group_location" {
   type    = string
   default = "westus2"
+}
+
+variable "location" {
+  type    = string
+  default = "canadacentral"
 }
 
 variable "function_app_prefix" {

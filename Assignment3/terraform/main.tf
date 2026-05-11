@@ -13,7 +13,7 @@ locals {
 
 resource "azurerm_resource_group" "main" {
   name     = var.resource_group_name
-  location = var.location
+  location = var.resource_group_location
 }
 
 resource "azurerm_storage_account" "functions" {
