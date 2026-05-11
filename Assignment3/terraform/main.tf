@@ -78,7 +78,6 @@ resource "azurerm_function_app_flex_consumption" "main" {
   site_config {}
 
   app_settings = {
-    FUNCTIONS_WORKER_RUNTIME    = "dotnet-isolated"
     FUNCTIONS_EXTENSION_VERSION = "~4"
     WEBSITE_RUN_FROM_PACKAGE    = "1"
     SERVICEBUS_CONNECTION       = azurerm_servicebus_namespace_authorization_rule.function_listener.primary_connection_string
