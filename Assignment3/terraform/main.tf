@@ -26,7 +26,7 @@ resource "azurerm_storage_account" "functions" {
 
 resource "azurerm_storage_container" "messages" {
   name                  = var.storage_container_name
-  storage_account_name  = azurerm_storage_account.functions.name
+  storage_account_id    = azurerm_storage_account.functions.id
   container_access_type = "private"
 }
 
@@ -82,17 +82,7 @@ resource "azurerm_function_app_flex_consumption" "main" {
     WEBSITE_RUN_FROM_PACKAGE    = "1"
     SERVICEBUS_CONNECTION       = azurerm_servicebus_namespace_authorization_rule.function_listener.primary_connection_string
     SERVICEBUS_QUEUE_NAME       = azurerm_servicebus_queue.messages.name
-    STORAGE_ACCOUNT_NAME        = azurerm_storage_account.functions.name
+    STORAGE_CONNECTION_STRING   = azurerm_storage_account.functions.primary_connection_string
     STORAGE_CONTAINER_NAME      = azurerm_storage_container.messages.name
   }
-}
-
-data "azurerm_role_definition" "blob_data_contributor" {
-  name = "Storage Blob Data Contributor"
-}
-
-resource "azurerm_role_assignment" "function_storage" {
-  scope              = azurerm_storage_account.functions.id
-  role_definition_id = data.azurerm_role_definition.blob_data_contributor.id
-  principal_id       = azurerm_function_app_flex_consumption.main.identity[0].principal_id
 }

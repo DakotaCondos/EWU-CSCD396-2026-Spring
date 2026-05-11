@@ -1,4 +1,3 @@
-using Azure.Identity;
 using Azure.Storage.Blobs;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -11,11 +10,10 @@ var host = new HostBuilder()
         services.AddSingleton(sp =>
         {
             var configuration = sp.GetRequiredService<IConfiguration>();
-            var storageAccountName = configuration["STORAGE_ACCOUNT_NAME"]
-                ?? throw new InvalidOperationException("STORAGE_ACCOUNT_NAME is required.");
+            var storageConnectionString = configuration["STORAGE_CONNECTION_STRING"]
+                ?? throw new InvalidOperationException("STORAGE_CONNECTION_STRING is required.");
 
-            var accountUri = new Uri($"https://{storageAccountName}.blob.core.windows.net");
-            return new BlobServiceClient(accountUri, new DefaultAzureCredential());
+            return new BlobServiceClient(storageConnectionString);
         });
     })
     .Build();
