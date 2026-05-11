@@ -79,7 +79,6 @@ resource "azurerm_function_app_flex_consumption" "main" {
 
   app_settings = {
     FUNCTIONS_EXTENSION_VERSION = "~4"
-    WEBSITE_RUN_FROM_PACKAGE    = "1"
     SERVICEBUS_CONNECTION       = azurerm_servicebus_namespace_authorization_rule.function_listener.primary_connection_string
     SERVICEBUS_QUEUE_NAME       = azurerm_servicebus_queue.messages.name
     STORAGE_CONNECTION_STRING   = azurerm_storage_account.functions.primary_connection_string
