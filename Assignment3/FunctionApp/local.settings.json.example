@@ -6,7 +6,7 @@
     "FUNCTIONS_EXTENSION_VERSION": "~4",
     "SERVICEBUS_CONNECTION": "Endpoint=sb://<service-bus-namespace>.servicebus.windows.net/;SharedAccessKeyName=<rule-name>;SharedAccessKey=<key>",
     "SERVICEBUS_QUEUE_NAME": "messages",
-    "STORAGE_CONNECTION_STRING": "DefaultEndpointsProtocol=https;AccountName=<storage-account-name>;AccountKey=<key>;EndpointSuffix=core.windows.net",
+    "STORAGE_ACCOUNT_NAME": "<storage-account-name>",
     "STORAGE_CONTAINER_NAME": "incoming-messages"
   }
 }
