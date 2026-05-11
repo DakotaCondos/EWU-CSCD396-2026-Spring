@@ -3,7 +3,7 @@ output "resource_group_name" {
 }
 
 output "function_app_name" {
-  value = azurerm_linux_function_app.main.name
+  value = azurerm_function_app_flex_consumption.main.name
 }
 
 output "storage_account_name" {

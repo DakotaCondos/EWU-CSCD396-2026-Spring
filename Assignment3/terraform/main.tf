@@ -58,24 +58,24 @@ resource "azurerm_service_plan" "function" {
   sku_name            = "FC1"
 }
 
-resource "azurerm_linux_function_app" "main" {
+resource "azurerm_function_app_flex_consumption" "main" {
   name                = local.function_app_name
   location            = azurerm_resource_group.main.location
   resource_group_name = azurerm_resource_group.main.name
 
-  service_plan_id            = azurerm_service_plan.function.id
-  storage_account_name       = azurerm_storage_account.functions.name
-  storage_account_access_key = azurerm_storage_account.functions.primary_access_key
+  service_plan_id             = azurerm_service_plan.function.id
+  storage_container_type      = "blobContainer"
+  storage_container_endpoint  = "${azurerm_storage_account.functions.primary_blob_endpoint}${azurerm_storage_container.messages.name}"
+  storage_authentication_type = "StorageAccountConnectionString"
+  storage_access_key          = azurerm_storage_account.functions.primary_access_key
+  runtime_name                = "dotnet-isolated"
+  runtime_version             = "8.0"
 
   identity {
     type = "SystemAssigned"
   }
 
-  site_config {
-    application_stack {
-      dotnet_version = "8.0"
-    }
-  }
+  site_config {}
 
   app_settings = {
     FUNCTIONS_WORKER_RUNTIME    = "dotnet-isolated"
@@ -95,5 +95,5 @@ data "azurerm_role_definition" "blob_data_contributor" {
 resource "azurerm_role_assignment" "function_storage" {
   scope              = azurerm_storage_account.functions.id
   role_definition_id = data.azurerm_role_definition.blob_data_contributor.id
-  principal_id       = azurerm_linux_function_app.main.identity[0].principal_id
+  principal_id       = azurerm_function_app_flex_consumption.main.identity[0].principal_id
 }
