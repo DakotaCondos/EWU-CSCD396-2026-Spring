@@ -20,7 +20,7 @@ jobs:
     env:
       ACR_LOGIN_SERVER: 396acr.azurecr.io
       IMAGE_NAME: assignment2
-      IMAGE_TAG: v1
+      IMAGE_TAG: ${{ github.sha }}
       TF_VAR_acr_login_server: 396acr.azurecr.io
       TF_VAR_acr_username: ${{ secrets.TF_VAR_ACR_USERNAME }}
       TF_VAR_acr_password: ${{ secrets.TF_VAR_ACR_PASSWORD }}
