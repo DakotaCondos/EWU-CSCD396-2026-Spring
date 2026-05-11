@@ -92,6 +92,6 @@ data "azurerm_role_definition" "blob_data_contributor" {
 
 resource "azurerm_role_assignment" "function_storage" {
   scope              = azurerm_storage_account.functions.id
-  role_definition_id = data.azurerm_role_definition.blob_data_contributor.id
+  role_definition_id = "/subscriptions/98ef8437-66f2-4a03-9d1a-cf7057d27d9c/providers/Microsoft.Authorization/roleDefinitions/ba92f5b4-2d11-453d-a403-e96b0029c9fe"
   principal_id       = azurerm_function_app_flex_consumption.main.identity[0].principal_id
 }
