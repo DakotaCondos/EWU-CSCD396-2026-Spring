@@ -53,9 +53,9 @@ jobs:
       - name: Build and push container image
         run: |
           docker build \
-            -f Assignment2/Dockerfile \
+            -f ../Dockerfile \
             -t $ACR_LOGIN_SERVER/$IMAGE_NAME:$IMAGE_TAG \
-            Assignment2
+            ..
           docker push $ACR_LOGIN_SERVER/$IMAGE_NAME:$IMAGE_TAG
 
       - name: Setup Terraform
