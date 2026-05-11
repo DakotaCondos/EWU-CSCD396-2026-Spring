@@ -1,3 +1,4 @@
+using Azure.Identity;
 using Azure.Messaging.ServiceBus;
 using Microsoft.Extensions.Configuration;
 
@@ -8,10 +9,10 @@ builder.Services.AddRazorPages();
 builder.Services.AddSingleton(sp =>
 {
     var configuration = sp.GetRequiredService<IConfiguration>();
-    var connectionString = configuration["SERVICEBUS_CONNECTION_STRING"]
-        ?? throw new InvalidOperationException("SERVICEBUS_CONNECTION_STRING is required.");
+    var namespaceFqdn = configuration["SERVICEBUS_NAMESPACE_FQDN"]
+        ?? throw new InvalidOperationException("SERVICEBUS_NAMESPACE_FQDN is required.");
 
-    return new ServiceBusClient(connectionString);
+    return new ServiceBusClient(namespaceFqdn, new DefaultAzureCredential());
 });
 
 var app = builder.Build();

@@ -26,6 +26,10 @@ data "azurerm_servicebus_namespace" "target" {
   resource_group_name = var.servicebus_namespace_resource_group_name
 }
 
+data "azurerm_role_definition" "servicebus_sender" {
+  name = "Azure Service Bus Data Sender"
+}
+
 data "azurerm_container_app_environment" "env" {
   name                = "cscd396-container-app-env"
   resource_group_name = var.resource_group_name
@@ -70,8 +74,8 @@ resource "azurerm_container_app" "app" {
       memory = "0.5Gi"
 
       env {
-        name  = "SERVICEBUS_CONNECTION_STRING"
-        value = azurerm_servicebus_namespace_authorization_rule.container_app_sender.primary_connection_string
+        name  = "SERVICEBUS_NAMESPACE_FQDN"
+        value = format("%s.servicebus.windows.net", var.servicebus_namespace_name)
       }
 
       env {
@@ -82,10 +86,8 @@ resource "azurerm_container_app" "app" {
   }
 }
 
-resource "azurerm_servicebus_namespace_authorization_rule" "container_app_sender" {
-  name         = "containerapp-sender"
-  namespace_id = data.azurerm_servicebus_namespace.target.id
-  send         = true
-  listen       = false
-  manage       = false
+resource "azurerm_role_assignment" "servicebus_sender" {
+  scope              = data.azurerm_servicebus_namespace.target.id
+  role_definition_id = data.azurerm_role_definition.servicebus_sender.id
+  principal_id       = azurerm_container_app.app.identity[0].principal_id
 }

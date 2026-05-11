@@ -6,7 +6,7 @@ For the Assignment 3 extension, the home page now includes a message form that p
 
 Required app settings for the message sender:
 
-- `SERVICEBUS_CONNECTION_STRING`
+- `SERVICEBUS_NAMESPACE_FQDN`
 - `SERVICEBUS_QUEUE_NAME`
 
-In Azure, the app uses a Service Bus authorization rule connection string for sending messages.
+In Azure, the app uses its managed identity plus the Azure Service Bus Data Sender role.
