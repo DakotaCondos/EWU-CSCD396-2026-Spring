@@ -6,9 +6,9 @@ resource "random_string" "suffix" {
 }
 
 locals {
-  resource_suffix           = random_string.suffix.result
-  storage_account_name      = substr("${var.storage_account_prefix}${local.resource_suffix}", 0, 24)
-  function_app_name         = substr("${var.function_app_prefix}-${local.resource_suffix}", 0, 60)
+  resource_suffix      = random_string.suffix.result
+  storage_account_name = substr("${var.storage_account_prefix}${local.resource_suffix}", 0, 24)
+  function_app_name    = substr("${var.function_app_prefix}-${local.resource_suffix}", 0, 60)
 }
 
 resource "azurerm_resource_group" "main" {

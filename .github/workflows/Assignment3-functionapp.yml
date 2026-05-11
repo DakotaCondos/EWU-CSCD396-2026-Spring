@@ -79,8 +79,23 @@ jobs:
       - name: Read Terraform Outputs
         working-directory: ${{ env.WORKING_DIR }}
         run: |
-          echo "FUNCTION_APP_NAME=$(terraform output -raw function_app_name)" >> $GITHUB_ENV
-          echo "RESOURCE_GROUP_NAME=$(terraform output -raw resource_group_name)" >> $GITHUB_ENV
+          set -euo pipefail
+
+          function_app_name="$(terraform output -raw function_app_name 2>&1 || true)"
+          resource_group_name="$(terraform output -raw resource_group_name 2>&1 || true)"
+
+          if [[ "$function_app_name" == *"Warning: No outputs found"* || "$resource_group_name" == *"Warning: No outputs found"* ]]; then
+            echo "Terraform outputs are not available in the backend state yet. Run the Assignment3 Terraform workflow successfully first." >&2
+            exit 1
+          fi
+
+          if [[ -z "$function_app_name" || -z "$resource_group_name" ]]; then
+            echo "Terraform output values were empty." >&2
+            exit 1
+          fi
+
+          echo "FUNCTION_APP_NAME=$function_app_name" >> $GITHUB_ENV
+          echo "RESOURCE_GROUP_NAME=$resource_group_name" >> $GITHUB_ENV
 
       - name: Restore dependencies
         run: dotnet restore ${{ env.FUNCTION_PROJECT }}
